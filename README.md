@@ -18,7 +18,7 @@ Then you have to make sure the i2c module is active. So check or add i2c-dev to 
 	# /etc/modules: kernel modules to load at boot time.
 	#
 	# This file contains the names of kernel modules that should be loaded
-	# at boot time, one per line. Lines beginning with  	"#" are ignored.
+	# at boot time, one per line. Lines beginning with "#" are ignored.
 	
 	i2c-dev
 
