@@ -17,7 +17,8 @@ guard let smBus = try? SMBus(busNumber: 1) else {
     fatalError("It has not been possible to open the I2C bus")
 }
 
-let module = PCA9685Module(smBus: smBus, address: 0x40)
+// Throws should be managed properly! This is an example so we're going to ignore them
+let module = try! PCA9685Module(smBus: smBus, address: 0x40)
 
 let redLedChannel = PCA9685Module.Channel(rawValue: 0)!
 let yellowLedChannel = PCA9685Module.Channel(rawValue: 1)!

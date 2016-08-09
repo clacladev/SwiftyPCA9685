@@ -33,27 +33,45 @@ public class PCA9685Module {
     public enum ModuleError: Error {
         case InvalidStartStepValues
         case InvalidDutyCyclePercentageValue
-        case FailedToWriteToChannel
+        case FailedToWriteData
+        case InvalidPwmFrequencyValue
     }
     
     /// System Managed Bus/i2c bus through which the communciation happens
     public let smBus: SMBus
+    
     /// Address of the module. Usually expressed as hexadecimal, e.g. 0x40. Use i2cdetect to find the right address
     public let address: Int32
     
-    private let numberInitialReservedAddresses = 6
-    private let numberAddressesPerChannel = 4
-    
     /// Valid steps range
     public let validStepsRange = 0 ..< 4096
+    
+    /// Valid PWM frequencies using the internal 25Mhz oscillator
+    public let validPwmFrequencies = 40 ... 1000
+    
+    private let numberInitialReservedAddresses = 6
+    private let numberAddressesPerChannel = 4
+    private let mode0RegistryAddress: UInt8 = 0x00
+    private let mode1RegistryAddress: UInt8 = 0x01
     
     
     /// Initialise the module
     /// param smBus SMBus on which the communication happens
     /// param address I2C module address
-    public init(smBus: SMBus, address: Int) {
+    public init(smBus: SMBus, address: Int) throws {
         self.smBus = smBus
         self.address = Int32(address)
+        try softReset()
+    }
+    
+    
+    /// Soft reset the module writing default values to the Mode0 and Mode1 registries
+    public func softReset() throws {
+        // Reset normal mode and totem pole
+        guard let _ = try? smBus.writeByteData(address: address, command: mode0RegistryAddress, value: 0x00),
+            let _ = try? smBus.writeByteData(address: address, command: mode1RegistryAddress, value: 0x04) else {
+                throw ModuleError.FailedToWriteData
+        }
     }
     
     
@@ -94,7 +112,7 @@ extension PCA9685Module {
             let _ = try? smBus.writeByteData(address: address, command: channelStartAddress + 1, value: onSecondRegistryValue),
             let _ = try? smBus.writeByteData(address: address, command: channelStartAddress + 2, value: offFirstRegistryValue),
             let _ = try? smBus.writeByteData(address: address, command: channelStartAddress + 3, value: offSecondRegistryValue) else {
-                throw ModuleError.FailedToWriteToChannel
+                throw ModuleError.FailedToWriteData
         }
     }
  
