@@ -19,6 +19,7 @@ guard let smBus = try? SMBus(busNumber: 1) else {
 
 // Throws should be managed properly! This is an example so we're going to ignore them
 let module = try! PCA9685Module(smBus: smBus, address: 0x40)
+try! module.set(pwmFrequency: 1000)
 
 let redLedChannel = PCA9685Module.Channel(rawValue: 0)!
 let yellowLedChannel = PCA9685Module.Channel(rawValue: 1)!

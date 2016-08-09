@@ -36,6 +36,12 @@ public class PCA9685Module {
         case FailedToWriteData
         case InvalidPwmFrequencyValue
     }
+    /// Module registries' addresses
+    private enum RegistryAddress: UInt8 {
+        case mode1 = 0x00
+        case mode2 = 0x01
+        case prescale = 0xfe
+    }
     
     /// System Managed Bus/i2c bus through which the communciation happens
     public let smBus: SMBus
@@ -51,8 +57,7 @@ public class PCA9685Module {
     
     private let numberInitialReservedAddresses = 6
     private let numberAddressesPerChannel = 4
-    private let mode0RegistryAddress: UInt8 = 0x00
-    private let mode1RegistryAddress: UInt8 = 0x01
+    private let internalClockFrequency = 25000000
     
     
     /// Initialise the module
@@ -68,10 +73,30 @@ public class PCA9685Module {
     /// Soft reset the module writing default values to the Mode0 and Mode1 registries
     public func softReset() throws {
         // Reset normal mode and totem pole
-        guard let _ = try? smBus.writeByteData(address: address, command: mode0RegistryAddress, value: 0x00),
-            let _ = try? smBus.writeByteData(address: address, command: mode1RegistryAddress, value: 0x04) else {
+        guard let _ = try? smBus.writeByteData(address: address, command: RegistryAddress.mode1.rawValue, value: 0x00),
+            let _ = try? smBus.writeByteData(address: address, command: RegistryAddress.mode2.rawValue, value: 0x04) else {
                 throw ModuleError.FailedToWriteData
         }
+    }
+    
+    
+    /// Set the PWM frequency
+    /// param pwmFrequency The frequency to set (40Hz to 1000Hz)
+    public func set(pwmFrequency: Int) throws {
+        guard validPwmFrequencies.contains(pwmFrequency) else {
+            throw ModuleError.InvalidPwmFrequencyValue
+        }
+        
+        // Set to sleep mode
+        try smBus.writeByteData(address: address, command: RegistryAddress.mode1.rawValue, value: 0x10)
+        
+        // Set the frequency
+        let prescaleValue = UInt8(internalClockFrequency / validStepsRange.last! / pwmFrequency - 1)
+        try smBus.writeByteData(address: address, command: RegistryAddress.prescale.rawValue, value: prescaleValue)
+        
+        // Restart and set totem pole
+        try smBus.writeByteData(address: address, command: RegistryAddress.mode1.rawValue, value: 0x80)
+        try smBus.writeByteData(address: address, command: RegistryAddress.mode2.rawValue, value: 0x04)
     }
     
     
