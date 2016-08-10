@@ -27,24 +27,31 @@ guard let module = try? PCA9685Module(smBus: smBus, address: 0x40),
 
 defer {
     // Reset the module
-    guard let _ = try? module.set(channel: redLedChannel, dutyCycle: 0.0),
-        let _ = try? module.set(channel: yellowLedChannel, dutyCycle: 0.0),
+    guard let _ = try? module.write(channel: redLedChannel, dutyCycle: 0.0),
+        let _ = try? module.write(channel: yellowLedChannel, dutyCycle: 0.0),
         let _ = try? module.softReset() else {
             fatalError("Failed to reset the module")
     }
 }
 
-let exampleDuration: TimeInterval = 10.0
+let exampleDuration: TimeInterval = 5.0
 let cycleDuration: TimeInterval = 0.01
 let numberExampleCycles = exampleDuration / cycleDuration
 
 // Fade the leds in
 for index in 0 ... Int(numberExampleCycles) {
+    
     let dutyCycle = 1.0 / numberExampleCycles * Double(index)
-    guard let _ = try? module.set(channel: redLedChannel, dutyCycle: dutyCycle),
-        let _ = try? module.set(channel: yellowLedChannel, dutyCycle: dutyCycle) else {
+    guard let _ = try? module.write(channel: redLedChannel, dutyCycle: dutyCycle),
+        let _ = try? module.write(channel: yellowLedChannel, dutyCycle: dutyCycle) else {
             fatalError("Failed to set the values for the given channels")
     }
+    
+    guard let readDutyCycle = try? module.readDutyCycle(channel: redLedChannel) else {
+        fatalError("Failed to read the values for a given channel")
+    }
+    print("Set \(dutyCycle * 100.0)% duty cycle. Read \(readDutyCycle * 100.0)% duty cycle.")
+    
     Thread.sleepForTimeInterval(cycleDuration)
 }
 
