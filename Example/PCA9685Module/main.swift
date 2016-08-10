@@ -12,28 +12,33 @@ import Glibc
 
 print("Starting the PCA9685Module example")
 
-// Initialize the module
+// Initialize the communication bus
 guard let smBus = try? SMBus(busNumber: 1) else {
-    fatalError("It has not been possible to open the I2C bus")
+    fatalError("It has not been possible to open the System Managed/I2C bus")
 }
 
-// Throws should be managed properly! This is an example so we're going to ignore them
-let module = try! PCA9685Module(smBus: smBus, address: 0x40)
-try! module.set(pwmFrequency: 1000)
-
-let redLedChannel = PCA9685Module.Channel(rawValue: 0)!
-let yellowLedChannel = PCA9685Module.Channel(rawValue: 1)!
+// Initialize the module and led channels
+guard let module = try? PCA9685Module(smBus: smBus, address: 0x40),
+    let _ = try? module.set(pwmFrequency: 1000),
+    let redLedChannel = PCA9685Module.Channel(rawValue: 0),
+    let yellowLedChannel = PCA9685Module.Channel(rawValue: 1) else {
+        fatalError("Failed to setup the module or the led channels")
+}
 
 defer {
-    // TODO: Reset
-    try! module.set(channel: redLedChannel, dutyCycle: 0.0)
-    try! module.set(channel: yellowLedChannel, dutyCycle: 0.0)
+    // Reset the module
+    guard let _ = try? module.set(channel: redLedChannel, dutyCycle: 0.0),
+        let _ = try? module.set(channel: yellowLedChannel, dutyCycle: 0.0),
+        let _ = try? module.softReset() else {
+            fatalError("Failed to reset the module")
+    }
 }
 
 let exampleDuration: TimeInterval = 10.0
 let cycleDuration: TimeInterval = 0.01
 let numberExampleCycles = exampleDuration / cycleDuration
 
+// Fade the leds in
 for index in 0 ... Int(numberExampleCycles) {
     let dutyCycle = 1.0 / numberExampleCycles * Double(index)
     guard let _ = try? module.set(channel: redLedChannel, dutyCycle: dutyCycle),
