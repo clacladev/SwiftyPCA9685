@@ -51,5 +51,13 @@ To compile the example app, wich has two LEDs connected to the channel 0 and 1:
 	Example/PCA9685Module/main.swift
 
 
+## Thanks
+Inspiration from:
+
+- TeraHz's C++ [PCA9685](https://github.com/TeraHz/PCA9685)
+- Brunnels' C++ [PCA9685](https://github.com/brunnels/PCA9685)
+- Adafruit's Node.js [i2c pwm driver](https://github.com/kaosat-dev/adafruit-i2c-pwm-driver)
+
+
 ## Contacts
 Claudio Carnino, [tugulab.org](http://tugulab.org)
