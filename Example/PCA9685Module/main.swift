@@ -27,8 +27,7 @@ guard let module = try? PCA9685Module(smBus: smBus, address: 0x40),
 
 defer {
     // Reset the module
-    guard let _ = try? module.write(channel: redLedChannel, dutyCycle: 0.0),
-        let _ = try? module.write(channel: yellowLedChannel, dutyCycle: 0.0),
+    guard let _ = try? module.resetAllChannels(),
         let _ = try? module.softReset() else {
             fatalError("Failed to reset the module")
     }
@@ -46,11 +45,6 @@ for index in 0 ... Int(numberExampleCycles) {
         let _ = try? module.write(channel: yellowLedChannel, dutyCycle: dutyCycle) else {
             fatalError("Failed to set the values for the given channels")
     }
-    
-    guard let readDutyCycle = try? module.readDutyCycle(channel: redLedChannel) else {
-        fatalError("Failed to read the values for a given channel")
-    }
-    print("Set \(dutyCycle * 100.0)% duty cycle. Read \(readDutyCycle * 100.0)% duty cycle.")
     
     Thread.sleepForTimeInterval(cycleDuration)
 }

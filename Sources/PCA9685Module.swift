@@ -28,6 +28,14 @@ public class PCA9685Module {
         case channelNo13
         case channelNo14
         case channelNo15
+        
+        /// All channels
+        static var channelsList: [Channel] {
+            return [.channelNo0, .channelNo1, .channelNo2, .channelNo3,
+                    .channelNo4, .channelNo5, .channelNo6, .channelNo7,
+                    .channelNo8, .channelNo9, .channelNo10, .channelNo11,
+                    .channelNo12, .channelNo13, .channelNo14, .channelNo15]
+        }
     }
     
     public enum ModuleError: Error {
@@ -153,6 +161,14 @@ extension PCA9685Module {
         }
         let offStartStep = dutyCycle * Double(validStepsRange.last!)
         try write(channel: channel, onStartStep: 0, offStartStep: Int(offStartStep))
+    }
+    
+    
+    /// Reset all the the channels (set 0% duty cycle)
+    public func resetAllChannels() throws {
+        for channel in Channel.channelsList {
+            try write(channel: channel, dutyCycle: 0.0)
+        }
     }
     
 }
