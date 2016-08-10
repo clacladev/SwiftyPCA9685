@@ -10,7 +10,7 @@ import Foundation
 import Glibc
 
 
-print("Starting the PCA9685Module example")
+print("Starting the PCA9685Module example (fade in channel 0 and 1)")
 
 // Initialize the communication bus
 guard let smBus = try? SMBus(busNumber: 1) else {

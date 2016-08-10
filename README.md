@@ -48,7 +48,7 @@ To compile the example app, wich has two LEDs connected to the channel 0 and 1:
 	-I ./Packages/SMBus-swift/Packages/CioctlHelper/ \
 	./Packages/SMBus-swift/Sources/*.swift \
 	Sources/*.swift \
-	Example/PCA9685Module/main.swift
+	Examples/PCA9685Module/main.swift
 
 
 ## Thanks
