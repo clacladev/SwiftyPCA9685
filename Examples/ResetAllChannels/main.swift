@@ -11,9 +11,12 @@ import Glibc
 
 print("Reset all channels")
 
-// Initialize the module and reset all the channels
-guard let smBus = try? SMBus(busNumber: 1),
-    let module = try? PCA9685Module(smBus: smBus, address: 0x40),
-    let _ = try? module.resetAllChannels() else {
-        fatalError("Failed to reset all the channels")
+do {
+    let smBus = try SMBus(busNumber: 1)
+    let module = try PCA9685Module(smBus: smBus, address: 0x40)
+    try module.resetAllChannels()
+    
+} catch let error {
+    print(error)
 }
+

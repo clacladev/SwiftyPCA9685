@@ -12,7 +12,6 @@ guard let appArguments = CommandLine.appArguments() else {
     fatalError("The correct way of calling this app is: \npca9685-set-pwm-on-channel bus-number=1 address=0x40 frequency=1000 channel=0 duty-cycle=0.5")
 }
 
-// Initialize the module
 do {
     let smBus = try SMBus(busNumber: appArguments.busNumber)
     let module = try PCA9685Module(smBus: smBus, address: appArguments.address)
